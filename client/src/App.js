@@ -15,16 +15,22 @@ function App () {
         fetchBooks();
     },[]);
 
-    const createBook = async (title) => {
-        const response = await axios.post("http://localhost:5000/api/create", {bookTitle: title});
+    const createBook = async (titleName) => {
+        const response = await axios.post("http://localhost:5000/api/create", {title:titleName} );
+        console.log(response.data);
 
-        console.log(response);
-        // setBooks(updatedBook)
+        const updatedBooks = [...books,response.data];
+        console.log(updatedBooks);
+
+        setBooks(updatedBooks)
     } 
 
-    const editBookById = (idToEdit, newTitle) => {
+    const editBookById = async (idToEdit, newTitle) => {
+        const response = await axios.post("http://localhost:5000/api/edit", {id: idToEdit, title:newTitle});
+        console.log(response.data);
+
         const updatedBooks = books.map((book) =>{
-            if (book.id === idToEdit) {
+            if (book._id === idToEdit) {
                 return {...book, title:newTitle};
             }
             return book;
@@ -32,9 +38,12 @@ function App () {
         setBooks(updatedBooks);
     };
 
-    const deleteBookById = (idToDelete) => {
+    const deleteBookById = async (idToDelete) => {
+        const response = await axios.post("http://localhost:5000/api/delete", {id:idToDelete});
+        console.log(response.data);
+
         const updatedBooks = books.filter((book) => {
-            return book.id !== idToDelete
+            return book._id !== idToDelete
         })
         setBooks(updatedBooks);
     };

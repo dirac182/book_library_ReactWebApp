@@ -7,7 +7,8 @@ import bodyParser from "body-parser";
 const app = express();
 const port = 5000;
 app.use(cors());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json())
 
 // DatabaseStuff
 mongoose.connect(process.env.DB_LINK);
@@ -42,10 +43,44 @@ app.get("/api", async (req,res) => {
 })
 
 app.post("/api/create", async (req,res) => {
-    console.log(req);
-    res.json(req.body);
+    const newBook = new Book({
+        title: req.body.title,
+    })
+    Book.create(newBook)
+    .then((i) => {
+        console.log("Added new book book to DB.");
+    })
+    .catch((error) => {
+        console.log("Error adding new book:" + error);
+    })
+    res.json(newBook);
 })
 
+app.post("/api/edit", async (req,res) => {
+    console.log(req.body);
+    const updatedBook = {
+        title: req.body.title
+    }
+    Book.findOneAndReplace({_id: req.body.id},updatedBook)
+  .then((result) => {
+    console.log(updatedBook);
+    res.json(updatedBook);
+  })
+  .catch((error) => {
+    console.log("Error replacing" + error)
+  })
+})
+
+app.post("/api/delete", async (req,res) => {
+    Book.findByIdAndDelete({_id: req.body.id})
+  .then((i) => {
+    console.log("Successfully deleted post.");
+  })
+  .catch((error) => {
+    console.log("Error deleting post:" + error);
+  })
+    res.json(req.body);
+})
 
 app.listen(port, () =>{
     console.log(`Api server has successfully started on port ${port}.`)
